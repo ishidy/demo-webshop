@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Slot Machine - Fruit Shop</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      .slot-machine-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+        margin: 2rem 0;
+      }
+      .slot-display {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 200px;
+        height: 200px;
+        background: #fff;
+        border: 5px solid #111;
+        border-radius: 18px;
+        font-size: 6rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      }
+      .slot-display.spinning {
+        animation: spin 0.1s linear infinite;
+      }
+      @keyframes spin {
+        0% { transform: translateY(0); }
+        100% { transform: translateY(-300px); }
+      }
+      .slot-result {
+        font-size: 6rem;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+      .slot-result.show {
+        opacity: 1;
+      }
+      .slot-machine-desc {
+        font-size: 1.2rem;
+        color: #888;
+        margin-bottom: 1.2rem;
+        font-style: italic;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <header role="banner">
+      <div class="header-center">
+        <a href="index.html" class="logo" aria-label="Go to homepage">
+          <img
+            src="img/fruit-shop-logo.png"
+            class="logo-img"
+            alt="Fruit Shop Logo"
+          />
+          <span class="products-text"> View Products </span>
+        </a>
+        <nav role="navigation" aria-label="Main navigation">
+          <a
+            href="basket.html"
+            class="basket-link"
+            aria-label="View shopping basket"
+          >
+            <img
+              src="img/basket-icon.png"
+              class="basket-img"
+              alt="Shopping basket icon"
+            />
+            <span class="basket-text">View shopping basket</span>
+          </a>
+        </nav>
+      </div>
+    </header>
+    <main id="main-content" role="main">
+      <div class="content-box">
+        <div class="emoji-display" role="img" aria-label="Slot machine emoji">🎰</div>
+        <h1>Slot Machine</h1>
+        <div class="slot-machine-desc" aria-label="Product description">
+          Spin the wheel and get a random fruit! Who knows what you'll get?
+        </div>
+        <div class="slot-machine-container">
+          <div class="slot-display" id="slotDisplay" role="img" aria-label="Slot machine display">
+            <span class="slot-result" id="slotResult"></span>
+          </div>
+        </div>
+        <div class="button-container">
+          <button
+            id="addToBasket"
+            class="cart-action-btn"
+            aria-label="Spin slot machine and add random fruit to basket"
+          >
+            Add to Basket
+          </button>
+        </div>
+      </div>
+    </main>
+    <footer>
+      <a
+        href="https://www.linkedin.com/in/timlolkema/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        By Tim Lolkema
+      </a>
+    </footer>
+    <script src="shop.js"></script>
+    <script>
+      const fruits = ["🍏", "🍌", "🍋"];
+      const fruitKeys = ["apple", "banana", "lemon"];
+      const slotDisplay = document.getElementById("slotDisplay");
+      const slotResult = document.getElementById("slotResult");
+      const addToBasketBtn = document.getElementById("addToBasket");
+
+      const getRandomFruit = () => {
+        const randomIndex = Math.floor(Math.random() * fruits.length);
+        return {
+          emoji: fruits[randomIndex],
+          key: fruitKeys[randomIndex]
+        };
+      };
+
+      const createSpinner = () => {
+        const state = { isSpinning: false };
+        
+        return () => {
+          if (state.isSpinning) return;
+          state.isSpinning = true;
+          addToBasketBtn.disabled = true;
+          slotResult.classList.remove("show");
+          slotDisplay.classList.add("spinning");
+
+          // Create spinning effect by rapidly changing emojis
+          const spinInterval = setInterval(() => {
+            const randomEmoji = fruits[Math.floor(Math.random() * fruits.length)];
+            slotResult.textContent = randomEmoji;
+          }, 50);
+
+          // Stop spinning after 1.5 seconds and select random fruit
+          setTimeout(() => {
+            clearInterval(spinInterval);
+            slotDisplay.classList.remove("spinning");
+            
+            const selectedFruit = getRandomFruit();
+            slotResult.textContent = selectedFruit.emoji;
+            slotResult.classList.add("show");
+
+            // Add the selected fruit to basket
+            addToBasket(selectedFruit.key);
+
+            state.isSpinning = false;
+            addToBasketBtn.disabled = false;
+          }, 1500);
+        };
+      };
+
+      addToBasketBtn.onclick = createSpinner();
+    </script>
+  </body>
+</html>
+
